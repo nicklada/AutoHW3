@@ -1,10 +1,9 @@
+package ru.netology.web;
+
 import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
+
 
 
 import static com.codeborne.selenide.Selenide.*;
@@ -12,16 +11,11 @@ import static org.openqa.selenium.By.cssSelector;
 
 public class FormTest {
 
-    @AfterEach
-    void tearDown(){
-        closeWindow();
-    }
-
     @Test
-    void shouldSubmitRequest(){
+    void shouldSubmitRequestIfFullyValid() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
-        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада");
+        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада Николаева");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("+79111234567");
         form.$(cssSelector("[data-test-id=agreement]")).click();
         form.$(cssSelector("[role=button]")).click();
@@ -29,7 +23,7 @@ public class FormTest {
     }
 
     @Test
-    void shouldSubmitRequestIfNameInCaps(){
+    void shouldSubmitRequestIfNameInCaps() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
         form.$(cssSelector("[data-test-id=name] input")).sendKeys("ЛАДА НИКОЛАЕВА");
@@ -40,7 +34,7 @@ public class FormTest {
     }
 
     @Test
-    void shouldSubmitRequestIfNameInSmallLetters(){
+    void shouldSubmitRequestIfNameInSmallLetters() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
         form.$(cssSelector("[data-test-id=name] input")).sendKeys("лада николаева");
@@ -51,29 +45,40 @@ public class FormTest {
     }
 
     @Test
-    void shouldSubmitRequestIfNameAndSurnameOneLetter(){
+    void shouldNotSubmitRequestIfOnlyName() {
+        open("http://localhost:9999");
+        SelenideElement form = $("[action]");
+        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада");
+        form.$(cssSelector("[data-test-id=phone] input")).sendKeys("+79111234567");
+        form.$(cssSelector("[data-test-id=agreement]")).click();
+        form.$(cssSelector("[role=button]")).click();
+        $(".input_type_text .input__sub").shouldHave(Condition.exactText("Поле обязательно для заполнения"));
+    }
+
+    @Test
+    void shouldNotSubmitRequestIfNameAndSurnameOneLetter() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
         form.$(cssSelector("[data-test-id=name] input")).sendKeys("л н");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("+79111234567");
         form.$(cssSelector("[data-test-id=agreement]")).click();
         form.$(cssSelector("[role=button]")).click();
-        $("[data-test-id=order-success]").shouldHave(Condition.exactText("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
+        $(".input_type_text .input__sub").shouldHave(Condition.exactText("Поле обязательно для заполнения"));
     }
 
     @Test
-    void shouldSubmitRequestIfNameAndSurname40Letters(){
+    void shouldNotSubmitRequestIfNameAndSurname40Letters() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
         form.$(cssSelector("[data-test-id=name] input")).sendKeys("Оооооооооооооооооооооооооооооооооооооооо Ннннннннннннннннннннннннннннннннннннннннннннн");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("+79111234567");
         form.$(cssSelector("[data-test-id=agreement]")).click();
         form.$(cssSelector("[role=button]")).click();
-        $("[data-test-id=order-success]").shouldHave(Condition.exactText("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
+        $(".input_type_text .input__sub").shouldHave(Condition.exactText("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
     }
 
     @Test
-    void shouldSubmitRequestIfNameWithHyphen(){
+    void shouldSubmitRequestIfNameWithHyphen() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
         form.$(cssSelector("[data-test-id=name] input")).sendKeys("Маша Петрова-Иванова");
@@ -84,7 +89,7 @@ public class FormTest {
     }
 
     @Test
-    void shouldNotSubmitRequestIfNameInLatinLetters(){
+    void shouldNotSubmitRequestIfNameInLatinLetters() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
         form.$(cssSelector("[data-test-id=name] input")).sendKeys("Lada Nikolaeva");
@@ -95,14 +100,15 @@ public class FormTest {
     }
 
     @Test
-    void shouldNotSubmitIfFormIsEmpty(){
+    void shouldNotSubmitIfFormIsEmpty() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
         form.$(cssSelector("[role=button]")).click();
         $(".input_type_text .input__sub").shouldHave(Condition.exactText("Поле обязательно для заполнения"));
     }
+
     @Test
-    void shouldNotSubmitIfNameIsEmpty(){
+    void shouldNotSubmitIfNameIsEmpty() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
         form.$(cssSelector("[data-test-id=name] input")).sendKeys("");
@@ -113,10 +119,10 @@ public class FormTest {
     }
 
     @Test
-    void shouldNotSubmitIfPhoneIsEmpty(){
+    void shouldNotSubmitIfPhoneIsEmpty() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
-        form.$(cssSelector("[data-test-id=name] input")).sendKeys("л н");
+        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада Николаева");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("");
         form.$(cssSelector("[data-test-id=agreement]")).click();
         form.$(cssSelector("[role=button]")).click();
@@ -124,17 +130,17 @@ public class FormTest {
     }
 
     @Test
-    void shouldNotSubmitIfAgreementIsEmpty(){
+    void shouldNotSubmitIfAgreementIsEmpty() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
-        form.$(cssSelector("[data-test-id=name] input")).sendKeys("л н");
+        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада Николаева");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("+77777777777");
         form.$(cssSelector("[role=button]")).click();
         $(".input_invalid [role=presentation]").shouldHave(Condition.text("Я соглашаюсь"));
     }
 
     @Test
-    void shouldNotSubmitIfNameInvalidSymbols(){
+    void shouldNotSubmitIfNameInvalidSymbols() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
         form.$(cssSelector("[data-test-id=name] input")).sendKeys("@ $");
@@ -145,10 +151,10 @@ public class FormTest {
     }
 
     @Test
-    void shouldNotSubmitRequestIfPhoneIs1Number(){
+    void shouldNotSubmitRequestIfPhoneIs1Number() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
-        form.$(cssSelector("[data-test-id=name] input")).sendKeys("лада николаева");
+        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада Николаева");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("7");
         form.$(cssSelector("[data-test-id=agreement]")).click();
         form.$(cssSelector("[role=button]")).click();
@@ -156,10 +162,10 @@ public class FormTest {
     }
 
     @Test
-    void shouldNotSubmitRequestIfPhoneIs10Numbers(){
+    void shouldNotSubmitRequestIfPhoneIs10Numbers() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
-        form.$(cssSelector("[data-test-id=name] input")).sendKeys("лада николаева");
+        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада Николаева");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("89111111111");
         form.$(cssSelector("[data-test-id=agreement]")).click();
         form.$(cssSelector("[role=button]")).click();
@@ -167,10 +173,10 @@ public class FormTest {
     }
 
     @Test
-    void shouldNotSubmitRequestIfPhoneWithoutPlus(){
+    void shouldNotSubmitRequestIfPhoneWithoutPlus() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
-        form.$(cssSelector("[data-test-id=name] input")).sendKeys("лада николаева");
+        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада Николаева");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("79111111111");
         form.$(cssSelector("[data-test-id=agreement]")).click();
         form.$(cssSelector("[role=button]")).click();
@@ -178,10 +184,10 @@ public class FormTest {
     }
 
     @Test
-    void shouldNotSubmitRequestIfPhoneIs12Numbers(){
+    void shouldNotSubmitRequestIfPhoneIs12Numbers() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
-        form.$(cssSelector("[data-test-id=name] input")).sendKeys("лада николаева");
+        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада Николаева");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("+791111111111");
         form.$(cssSelector("[data-test-id=agreement]")).click();
         form.$(cssSelector("[role=button]")).click();
@@ -189,10 +195,10 @@ public class FormTest {
     }
 
     @Test
-    void shouldNotSubmitRequestIfPhoneIsLetters(){
+    void shouldNotSubmitRequestIfPhoneIsLetters() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
-        form.$(cssSelector("[data-test-id=name] input")).sendKeys("лада николаева");
+        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада Николаева");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("+лаоврлолаов");
         form.$(cssSelector("[data-test-id=agreement]")).click();
         form.$(cssSelector("[role=button]")).click();
@@ -200,10 +206,10 @@ public class FormTest {
     }
 
     @Test
-    void shouldNotSubmitRequestIfPhoneIsSymbols(){
+    void shouldNotSubmitRequestIfPhoneIsSymbols() {
         open("http://localhost:9999");
         SelenideElement form = $("[action]");
-        form.$(cssSelector("[data-test-id=name] input")).sendKeys("лада николаева");
+        form.$(cssSelector("[data-test-id=name] input")).sendKeys("Лада Николаева");
         form.$(cssSelector("[data-test-id=phone] input")).sendKeys("+@#$%^&*(&^%");
         form.$(cssSelector("[data-test-id=agreement]")).click();
         form.$(cssSelector("[role=button]")).click();
